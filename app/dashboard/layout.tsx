@@ -19,7 +19,7 @@ export default function DashboardLayout({
         <div className="p-5 hidden md:block">
           <div className="flex justify-center mb-4">
             <img
-              src="/ana-paula.jpg"
+              src="/ana-paula.jpeg"
               alt="Ana Paula Tomacheski"
               className="w-24 h-24 rounded-full object-cover border-2 border-blush"
             />
