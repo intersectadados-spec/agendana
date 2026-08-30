@@ -1,5 +1,6 @@
+import ExcluirPacienteBotao from "@/components/ExcluirPacienteBotao";
 import PacienteForm from "@/components/PacienteForm";
-import { atualizarPaciente, excluirPaciente } from "@/lib/actions";
+import { atualizarPaciente } from "@/lib/actions";
 import { createClient } from "@/lib/supabase/server";
 import { formatDateBR } from "@/lib/utils";
 import { notFound } from "next/navigation";
@@ -38,7 +39,6 @@ export default async function EditarPacientePage({
   if (!paciente) notFound();
 
   const atualizarComId = atualizarPaciente.bind(null, params.id);
-  const excluirComId = excluirPaciente.bind(null, params.id);
 
   const mesSelecionado = searchParams.mes ?? mesAtualISO();
   const { inicio, fim } = limitesDoMes(mesSelecionado);
@@ -65,11 +65,7 @@ export default async function EditarPacientePage({
       <h2 className="text-2xl text-wine">Editar paciente</h2>
       <PacienteForm action={atualizarComId} defaultValues={paciente} />
 
-      <form action={excluirComId} className="max-w-lg">
-        <button type="submit" className="text-sm text-red-600 hover:underline">
-          Excluir paciente
-        </button>
-      </form>
+      <ExcluirPacienteBotao id={params.id} />
 
       <div className="max-w-lg space-y-3">
         <div className="flex items-center justify-between">
