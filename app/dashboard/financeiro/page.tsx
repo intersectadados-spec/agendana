@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, toISODate } from "@/lib/utils";
+import { endOfWeek, startOfWeek } from "date-fns";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -33,6 +34,32 @@ export default async function FinanceiroPage({
     .gte("data", inicio)
     .lt("data", fim);
 
+  // ---- Faturamento previsto da semana atual (independe do mês navegado) ----
+  const hoje = new Date();
+  const inicioSemana = toISODate(startOfWeek(hoje, { weekStartsOn: 0 }));
+  const fimSemana = toISODate(endOfWeek(hoje, { weekStartsOn: 0 }));
+
+  const { data: agendamentosSemana } = await supabase
+    .from("agendamentos")
+    .select("pacientes(preco_consulta)")
+    .gte("data", inicioSemana)
+    .lte("data", fimSemana);
+
+  const previstoSemana = (agendamentosSemana ?? []).reduce(
+    (soma: number, a: any) => soma + Number(a.pacientes?.preco_consulta ?? 0),
+    0
+  );
+
+  // ---- Totais do mês selecionado ----
+  let previstoMes = 0;
+  let recebidoMes = 0;
+  for (const a of agendamentos ?? ([] as any[])) {
+    const preco = Number((a as any).pacientes?.preco_consulta ?? 0);
+    previstoMes += preco;
+    if (a.pago) recebidoMes += Number(a.valor_pago ?? 0);
+  }
+  const pendenteMes = Math.max(previstoMes - recebidoMes, 0);
+
   const porPaciente = new Map<
     string,
     { nome: string; preco: number; frequencia: string; totalPago: number; sessoes: number }
@@ -54,7 +81,6 @@ export default async function FinanceiroPage({
   }
 
   const linhas = Array.from(porPaciente.values()).sort((a, b) => a.nome.localeCompare(b.nome));
-  const totalGeral = linhas.reduce((soma, l) => soma + l.totalPago, 0);
 
   const [ano, mes] = mesSelecionado.split("-").map(Number);
   const mesAnterior = `${mes === 1 ? ano - 1 : ano}-${String(mes === 1 ? 12 : mes - 1).padStart(2, "0")}`;
@@ -82,11 +108,27 @@ export default async function FinanceiroPage({
         </div>
       </div>
 
-      <div className="card p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg">Recebido no mês</h3>
-          <span className="text-xl text-wine font-medium">{formatCurrency(totalGeral)}</span>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="card p-4">
+          <p className="text-xs text-muted uppercase tracking-wide mb-1">Previsto na semana</p>
+          <p className="text-lg font-medium text-wine">{formatCurrency(previstoSemana)}</p>
         </div>
+        <div className="card p-4">
+          <p className="text-xs text-muted uppercase tracking-wide mb-1">Previsto no mês</p>
+          <p className="text-lg font-medium text-wine">{formatCurrency(previstoMes)}</p>
+        </div>
+        <div className="card p-4">
+          <p className="text-xs text-muted uppercase tracking-wide mb-1">Recebido no mês</p>
+          <p className="text-lg font-medium text-sage">{formatCurrency(recebidoMes)}</p>
+        </div>
+        <div className="card p-4">
+          <p className="text-xs text-muted uppercase tracking-wide mb-1">Pendente no mês</p>
+          <p className="text-lg font-medium text-red-500">{formatCurrency(pendenteMes)}</p>
+        </div>
+      </div>
+
+      <div className="card p-5">
+        <h3 className="text-lg mb-4">Detalhe por paciente</h3>
 
         {linhas.length === 0 ? (
           <p className="text-sm text-muted">Nenhum atendimento registrado nesse mês.</p>

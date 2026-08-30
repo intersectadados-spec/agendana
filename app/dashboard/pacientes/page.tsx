@@ -1,5 +1,5 @@
+import PacientesDiretorio from "@/components/PacientesDiretorio";
 import { createClient } from "@/lib/supabase/server";
-import { formatCurrency } from "@/lib/utils";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -8,7 +8,7 @@ export default async function PacientesPage() {
   const supabase = createClient();
   const { data: pacientes } = await supabase
     .from("pacientes")
-    .select("*")
+    .select("id, nome, telefone, preco_consulta, frequencia_pagamento")
     .order("nome");
 
   return (
@@ -20,28 +20,7 @@ export default async function PacientesPage() {
         </Link>
       </div>
 
-      <div className="card divide-y divide-line">
-        {!pacientes || pacientes.length === 0 ? (
-          <p className="p-5 text-sm text-muted">Nenhum paciente cadastrado ainda.</p>
-        ) : (
-          pacientes.map((p) => (
-            <Link
-              key={p.id}
-              href={`/dashboard/pacientes/${p.id}`}
-              className="flex items-center justify-between p-4 hover:bg-cream transition-colors"
-            >
-              <div>
-                <p className="font-medium text-sm">{p.nome}</p>
-                <p className="text-xs text-muted">{p.telefone}</p>
-              </div>
-              <div className="text-right text-xs text-muted">
-                <p>{formatCurrency(p.preco_consulta)}</p>
-                <p className="capitalize">{p.frequencia_pagamento}</p>
-              </div>
-            </Link>
-          ))
-        )}
-      </div>
+      <PacientesDiretorio pacientes={pacientes ?? []} />
     </div>
   );
 }

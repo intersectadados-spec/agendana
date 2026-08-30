@@ -52,10 +52,10 @@ export function linkConfirmacaoWhatsapp(
 ) {
   const numero = telefone.replace(/\D/g, "");
   const dataFormatada = formatDateBR(data);
-  const mensagem = `Olá, ${nomePaciente}! Aqui é do consultório da Ana Paula Koch Tomacheski. Confirmando sua consulta em ${dataFormatada} às ${horario.slice(
+  const mensagem = `Oie, ${nomePaciente}! Aqui é Psico Ana Paula. Confirmando sua consulta em ${dataFormatada} às ${horario.slice(
     0,
     5
-  )}. Pode confirmar presença, por favor? 💗`;
+  )}. Pode confirmar presença, por favor? ❤️`;
   return `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`;
 }
 
