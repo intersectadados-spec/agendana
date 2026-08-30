@@ -37,7 +37,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="text-3xl text-wine mb-1">AgendAna</h1>
+          <h1 className="text-3xl text-wine mb-1">Agenda Ana</h1>
           <p className="text-sm text-muted">Ana Paula Koch Tomacheski · Psicóloga</p>
         </div>
 

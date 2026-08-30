@@ -17,7 +17,7 @@ export default function DashboardLayout({
     <div className="min-h-screen flex flex-col md:flex-row">
       <aside className="md:w-56 bg-white border-b md:border-b-0 md:border-r border-line flex md:flex-col">
         <div className="p-5 hidden md:block">
-          <h1 className="text-2xl text-wine leading-none">AgendAna</h1>
+          <h1 className="text-2xl text-wine leading-none">Agenda Ana</h1>
           <p className="text-xs text-muted mt-1">Ana Paula Tomacheski</p>
         </div>
 

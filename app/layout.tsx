@@ -15,7 +15,7 @@ const workSans = Work_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "AgendAna · Ana Paula Koch Tomacheski",
+  title: "Agenda Ana · Ana Paula Koch Tomacheski",
   description: "Agenda e financeiro do consultório de Ana Paula Koch Tomacheski",
 };
 
