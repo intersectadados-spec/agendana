@@ -15,11 +15,24 @@ function revalidarAgendaEPaciente() {
 
 // PACIENTES -------------------------------------------------------------
 
-export async function criarPaciente(formData: FormData) {
+type ResultadoAcao = { ok: boolean; error?: string };
+
+export async function criarPaciente(formData: FormData): Promise<ResultadoAcao> {
   const supabase = createClient();
+  const nome = (formData.get("nome") as string)?.trim();
+
+  // trava contra cadastro duplicado (mesmo nome, ignorando maiúsculas/minúsculas)
+  const { data: existentes } = await supabase
+    .from("pacientes")
+    .select("id")
+    .ilike("nome", nome);
+
+  if (existentes && existentes.length > 0) {
+    return { ok: false, error: `Paciente "${nome}" já cadastrado.` };
+  }
 
   const { error } = await supabase.from("pacientes").insert({
-    nome: formData.get("nome") as string,
+    nome,
     telefone: formData.get("telefone") as string,
     data_nascimento: (formData.get("data_nascimento") as string) || null,
     preco_consulta: Number(formData.get("preco_consulta")) || 0,
@@ -27,13 +40,13 @@ export async function criarPaciente(formData: FormData) {
     observacoes: (formData.get("observacoes") as string) || null,
   });
 
-  if (error) throw new Error(error.message);
+  if (error) return { ok: false, error: error.message };
 
   revalidatePath("/dashboard/pacientes");
-  redirect("/dashboard/pacientes");
+  return { ok: true };
 }
 
-export async function atualizarPaciente(id: string, formData: FormData) {
+export async function atualizarPaciente(id: string, formData: FormData): Promise<ResultadoAcao> {
   const supabase = createClient();
 
   const { error } = await supabase
@@ -48,18 +61,19 @@ export async function atualizarPaciente(id: string, formData: FormData) {
     })
     .eq("id", id);
 
-  if (error) throw new Error(error.message);
+  if (error) return { ok: false, error: error.message };
 
   revalidatePath("/dashboard/pacientes");
-  redirect("/dashboard/pacientes");
+  revalidatePath("/dashboard/pacientes/[id]", "page");
+  return { ok: true };
 }
 
-export async function excluirPaciente(id: string) {
+export async function excluirPaciente(id: string): Promise<ResultadoAcao> {
   const supabase = createClient();
   const { error } = await supabase.from("pacientes").delete().eq("id", id);
-  if (error) throw new Error(error.message);
+  if (error) return { ok: false, error: error.message };
   revalidatePath("/dashboard/pacientes");
-  redirect("/dashboard/pacientes");
+  return { ok: true };
 }
 
 // AGENDAMENTOS ------------------------------------------------------------

@@ -1,3 +1,10 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+type ResultadoAcao = { ok: boolean; error?: string };
+
 type Paciente = {
   nome?: string;
   telefone?: string;
@@ -11,11 +18,32 @@ export default function PacienteForm({
   action,
   defaultValues,
 }: {
-  action: (formData: FormData) => void;
+  action: (formData: FormData) => Promise<ResultadoAcao>;
   defaultValues?: Paciente;
 }) {
+  const router = useRouter();
+  const [enviando, setEnviando] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+
+  async function handleSubmit(formData: FormData) {
+    if (enviando) return; // trava contra duplo clique
+    setEnviando(true);
+    setErro(null);
+
+    const resultado = await action(formData);
+
+    if (!resultado.ok) {
+      setErro(resultado.error ?? "Não foi possível salvar o paciente.");
+      setEnviando(false);
+      return;
+    }
+
+    router.push("/dashboard/pacientes");
+    router.refresh();
+  }
+
   return (
-    <form action={action} className="card p-6 space-y-4 max-w-lg">
+    <form action={handleSubmit} className="card p-6 space-y-4 max-w-lg">
       <div>
         <label className="label">Nome completo</label>
         <input name="nome" required className="input" defaultValue={defaultValues?.nome} />
@@ -79,8 +107,14 @@ export default function PacienteForm({
         />
       </div>
 
-      <button type="submit" className="btn-primary w-full">
-        Salvar paciente
+      {erro && (
+        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+          {erro}
+        </p>
+      )}
+
+      <button type="submit" disabled={enviando} className="btn-primary w-full disabled:opacity-60">
+        {enviando ? "Salvando..." : "Salvar paciente"}
       </button>
     </form>
   );
