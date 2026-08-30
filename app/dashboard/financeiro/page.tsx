@@ -62,7 +62,7 @@ export default async function FinanceiroPage({
 
   const porPaciente = new Map<
     string,
-    { nome: string; preco: number; frequencia: string; totalPago: number; sessoes: number }
+    { nome: string; preco: number; frequencia: string; totalPago: number; sessoes: number; totalAgendado: number }
   >();
 
   for (const a of agendamentos ?? ([] as any[])) {
@@ -74,7 +74,9 @@ export default async function FinanceiroPage({
       frequencia: p.frequencia_pagamento,
       totalPago: 0,
       sessoes: 0,
+      totalAgendado: 0,
     };
+    atual.totalAgendado += 1;
     if (a.atendido) atual.sessoes += 1;
     if (a.pago) atual.totalPago += Number(a.valor_pago ?? 0);
     porPaciente.set(p.id, atual);
@@ -137,7 +139,7 @@ export default async function FinanceiroPage({
             <thead>
               <tr className="text-left text-xs text-muted uppercase border-b border-line">
                 <th className="py-2 font-medium">Paciente</th>
-                <th className="py-2 font-medium">Preço consulta</th>
+                <th className="py-2 font-medium">Total do mês</th>
                 <th className="py-2 font-medium">Pagamento</th>
                 <th className="py-2 font-medium">Sessões atendidas</th>
                 <th className="py-2 font-medium text-right">Total pago no mês</th>
@@ -147,7 +149,7 @@ export default async function FinanceiroPage({
               {linhas.map((l) => (
                 <tr key={l.nome} className="border-b border-line last:border-0">
                   <td className="py-2.5">{l.nome}</td>
-                  <td className="py-2.5">{formatCurrency(l.preco)}</td>
+                  <td className="py-2.5">{formatCurrency(l.preco * l.totalAgendado)}</td>
                   <td className="py-2.5 capitalize">{l.frequencia}</td>
                   <td className="py-2.5">{l.sessoes}</td>
                   <td className="py-2.5 text-right font-medium">{formatCurrency(l.totalPago)}</td>

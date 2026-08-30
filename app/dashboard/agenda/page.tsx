@@ -58,6 +58,10 @@ export default async function AgendaPage({
     const dataAnterior = toISODate(addDays(dataRef, -1));
     const dataSeguinte = toISODate(addDays(dataRef, 1));
 
+    const horariosOcupados = new Set((agendamentos ?? []).map((a: any) => a.horario.slice(0, 5)));
+    const horariosPadrao = Array.from({ length: 14 }, (_, i) => `${String(7 + i).padStart(2, "0")}:00`);
+    const horariosDisponiveis = horariosPadrao.filter((h) => !horariosOcupados.has(h));
+
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between flex-wrap gap-3">
@@ -98,6 +102,23 @@ export default async function AgendaPage({
                 />
               ))}
             </ul>
+          )}
+        </div>
+
+        <div className="card p-5">
+          <h3 className="text-sm font-medium text-muted uppercase tracking-wide mb-3">
+            Horários disponíveis nesse dia (07h às 21h)
+          </h3>
+          {horariosDisponiveis.length === 0 ? (
+            <p className="text-sm text-muted">Nenhum horário livre — dia lotado.</p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {horariosDisponiveis.map((h) => (
+                <span key={h} className="text-xs px-3 py-1.5 rounded-full bg-cream text-wine font-medium">
+                  {h}
+                </span>
+              ))}
+            </div>
           )}
         </div>
 

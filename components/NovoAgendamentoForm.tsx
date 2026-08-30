@@ -13,10 +13,21 @@ export default function NovoAgendamentoForm({
   dataSelecionada: string;
 }) {
   const [aberto, setAberto] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
   async function handleSubmit(formData: FormData) {
-    await criarAgendamento(formData);
+    setErro(null);
+    setEnviando(true);
+    const resultado = await criarAgendamento(formData);
+    setEnviando(false);
+
+    if (!resultado.ok) {
+      setErro(resultado.error ?? "Não foi possível criar o agendamento.");
+      return;
+    }
+
     formRef.current?.reset();
     setAberto(false);
   }
@@ -49,7 +60,7 @@ export default function NovoAgendamentoForm({
         </div>
         <div>
           <label className="label">Horário</label>
-          <input type="time" name="horario" required className="input" />
+          <input type="time" name="horario" required min="07:00" max="21:00" className="input" />
         </div>
       </div>
 
@@ -62,11 +73,24 @@ export default function NovoAgendamentoForm({
         </select>
       </div>
 
+      {erro && (
+        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+          {erro}
+        </p>
+      )}
+
       <div className="flex gap-3">
-        <button type="submit" className="btn-primary">
-          Salvar
+        <button type="submit" disabled={enviando} className="btn-primary">
+          {enviando ? "Salvando..." : "Salvar"}
         </button>
-        <button type="button" onClick={() => setAberto(false)} className="btn-ghost">
+        <button
+          type="button"
+          onClick={() => {
+            setAberto(false);
+            setErro(null);
+          }}
+          className="btn-ghost"
+        >
           Cancelar
         </button>
       </div>
