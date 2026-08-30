@@ -1,4 +1,5 @@
 import { sair } from "@/lib/actions";
+import { fotoAnaPaula } from "@/lib/foto-ana-paula";
 import Link from "next/link";
 
 const links = [
@@ -19,7 +20,7 @@ export default function DashboardLayout({
         <div className="p-5 hidden md:block">
           <div className="flex justify-center mb-4">
             <img
-              src="/ana-paula.jpeg"
+              src={fotoAnaPaula}
               alt="Ana Paula Tomacheski"
               className="w-24 h-24 rounded-full object-cover border-2 border-blush"
             />
