@@ -62,7 +62,7 @@ export default function PacientesDiretorio({ pacientes }: { pacientes: Paciente[
             setLetraAtiva(null);
             setBusca("");
           }}
-          className={`w-8 h-8 rounded-full text-xs font-medium ${
+          className={`px-3.5 h-8 rounded-full text-xs font-medium whitespace-nowrap ${
             !letraAtiva && !busca ? "bg-wine text-white" : "bg-white border border-line text-muted"
           }`}
         >
