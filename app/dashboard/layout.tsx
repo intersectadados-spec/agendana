@@ -7,6 +7,7 @@ const links = [
   { href: "/dashboard/agenda", label: "Agenda" },
   { href: "/dashboard/pacientes", label: "Pacientes" },
   { href: "/dashboard/financeiro", label: "Financeiro" },
+  { href: "/dashboard/desempenho", label: "Desempenho" },
 ];
 
 export default function DashboardLayout({
