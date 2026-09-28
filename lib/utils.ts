@@ -1,4 +1,4 @@
-import { addDays, addWeeks, format } from "date-fns";
+import { addWeeks, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 export function formatCurrency(value: number | null | undefined) {
@@ -43,7 +43,7 @@ export function gerarDatasRecorrencia(
   return datas;
 }
 
-/** Monta o link wa.me com mensagem pré-preenchida de confirmação */
+/** Monta o link wa.me com mensagem pré-preenchida de confirmação (só o primeiro nome) */
 export function linkConfirmacaoWhatsapp(
   telefone: string,
   nomePaciente: string,
@@ -52,7 +52,8 @@ export function linkConfirmacaoWhatsapp(
 ) {
   const numero = telefone.replace(/\D/g, "");
   const dataFormatada = formatDateBR(data);
-  const mensagem = `Oie, ${nomePaciente}! Aqui é Psico Ana Paula. Confirmando sua consulta em ${dataFormatada} às ${horario.slice(
+  const primeiroNome = nomePaciente.trim().split(/\s+/)[0];
+  const mensagem = `Oie, ${primeiroNome}! Aqui é Psico Ana Paula. Confirmando sua consulta em ${dataFormatada} às ${horario.slice(
     0,
     5
   )}. Pode confirmar presença, por favor? ❤️`;

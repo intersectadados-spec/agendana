@@ -15,6 +15,7 @@ type Props = {
   valorPago: number | null;
   precoConsulta: number;
   confirmadoWhatsapp: boolean;
+  status?: string;
 };
 
 export default function AgendamentoItem({
@@ -28,11 +29,13 @@ export default function AgendamentoItem({
   valorPago,
   precoConsulta,
   confirmadoWhatsapp: confirmadoInicial,
+  status: statusInicial = "agendado",
 }: Props) {
   const [atendido, setAtendido] = useState(atendidoInicial);
   const [pago, setPago] = useState(pagoInicial);
   const [valor, setValor] = useState(valorPago ?? precoConsulta);
   const [confirmado, setConfirmado] = useState(confirmadoInicial);
+  const [status, setStatus] = useState(statusInicial);
   const [, startTransition] = useTransition();
 
   const [remarcando, setRemarcando] = useState(false);
@@ -47,6 +50,12 @@ export default function AgendamentoItem({
     });
   }
 
+  function alternarCancelado() {
+    const novoStatus = status === "cancelado" ? "agendado" : "cancelado";
+    setStatus(novoStatus);
+    salvar({ status: novoStatus });
+  }
+
   async function confirmarRemarcacao() {
     setSalvandoRemarcacao(true);
     setErroRemarcacao(null);
@@ -57,6 +66,7 @@ export default function AgendamentoItem({
       setErroRemarcacao(resultado.error ?? "Não foi possível remarcar.");
       return;
     }
+    setStatus("agendado");
     setRemarcando(false);
   }
 
@@ -64,7 +74,15 @@ export default function AgendamentoItem({
     <li className="border-b border-line last:border-0 py-3 text-sm">
       <div className="flex flex-wrap items-center gap-3">
         <span className="font-medium w-14">{horario.slice(0, 5)}</span>
-        <span className="flex-1 min-w-[120px]">{nomePaciente}</span>
+        <span className={`flex-1 min-w-[120px] ${status === "cancelado" ? "line-through text-muted" : ""}`}>
+          {nomePaciente}
+        </span>
+
+        {status === "cancelado" && (
+          <span className="text-[11px] px-2 py-0.5 rounded-full bg-red-50 text-red-500 font-medium">
+            Desmarcada
+          </span>
+        )}
 
         <label className="flex items-center gap-1.5 text-xs text-muted">
           <input
@@ -128,9 +146,20 @@ export default function AgendamentoItem({
         </button>
 
         <button
+          onClick={alternarCancelado}
+          className={`text-xs px-3 py-1.5 rounded-full border ${
+            status === "cancelado"
+              ? "border-line text-ink hover:bg-cream"
+              : "border-red-200 text-red-500 hover:bg-red-50"
+          }`}
+        >
+          {status === "cancelado" ? "Reabrir" : "Desmarcar"}
+        </button>
+
+        <button
           onClick={() => excluirAgendamento(id)}
           className="text-xs text-muted hover:text-red-600"
-          title="Excluir"
+          title="Excluir definitivamente"
         >
           ✕
         </button>

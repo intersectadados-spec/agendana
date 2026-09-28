@@ -99,6 +99,7 @@ export default async function AgendaPage({
                   valorPago={a.valor_pago}
                   precoConsulta={a.pacientes?.preco_consulta ?? 0}
                   confirmadoWhatsapp={a.confirmado_whatsapp}
+                  status={a.status}
                 />
               ))}
             </ul>

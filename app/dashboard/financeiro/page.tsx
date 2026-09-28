@@ -50,6 +50,19 @@ export default async function FinanceiroPage({
     0
   );
 
+  // ---- Faturamento recebido no ano atual ----
+  const anoAtual = hoje.getFullYear();
+  const { data: agendamentosAno } = await supabase
+    .from("agendamentos")
+    .select("valor_pago, pago")
+    .gte("data", `${anoAtual}-01-01`)
+    .lt("data", `${anoAtual + 1}-01-01`);
+
+  const recebidoAno = (agendamentosAno ?? []).reduce(
+    (soma: number, a: any) => soma + (a.pago ? Number(a.valor_pago ?? 0) : 0),
+    0
+  );
+
   // ---- Totais do mês selecionado ----
   let previstoMes = 0;
   let recebidoMes = 0;
@@ -110,7 +123,7 @@ export default async function FinanceiroPage({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <div className="card p-4">
           <p className="text-xs text-muted uppercase tracking-wide mb-1">Previsto na semana</p>
           <p className="text-lg font-medium text-wine">{formatCurrency(previstoSemana)}</p>
@@ -126,6 +139,10 @@ export default async function FinanceiroPage({
         <div className="card p-4">
           <p className="text-xs text-muted uppercase tracking-wide mb-1">Pendente no mês</p>
           <p className="text-lg font-medium text-red-500">{formatCurrency(pendenteMes)}</p>
+        </div>
+        <div className="card p-4">
+          <p className="text-xs text-muted uppercase tracking-wide mb-1">Faturamento em {anoAtual}</p>
+          <p className="text-lg font-medium text-wine">{formatCurrency(recebidoAno)}</p>
         </div>
       </div>
 
