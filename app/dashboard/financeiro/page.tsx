@@ -89,14 +89,13 @@ export default async function FinanceiroPage({
     (avulsosAno ?? []).reduce((soma: number, r: any) => soma + Number(r.valor ?? 0), 0);
 
   // ---- Totais do mês selecionado (consultas) ----
-  let previstoMes = 0;
+  let previstoMesBase = 0;
   let recebidoMes = 0;
   for (const a of agendamentos ?? ([] as any[])) {
     const preco = Number((a as any).pacientes?.preco_consulta ?? 0);
-    previstoMes += preco;
+    previstoMesBase += preco;
     if (a.pago) recebidoMes += Number(a.valor_pago ?? 0);
   }
-  const pendenteMes = Math.max(previstoMes - recebidoMes, 0);
 
   // ---- Recebimentos avulsos do mês selecionado ----
   const listaAvulsos = recebimentosAvulsos ?? [];
@@ -105,6 +104,10 @@ export default async function FinanceiroPage({
     .filter((r: any) => r.mes_referencia === mesAnteriorISO)
     .reduce((soma, r: any) => soma + Number(r.valor ?? 0), 0);
   const totalRecebidoMesCompleto = recebidoMes + recebidoAvulsoTotal;
+
+  // valores já recebidos referentes ao mês anterior abatem do previsto (e, por consequência, do pendente)
+  const previstoMes = Math.max(previstoMesBase - recebidoReferenteMesAnterior, 0);
+  const pendenteMes = Math.max(previstoMes - recebidoMes, 0);
 
   const porPaciente = new Map<
     string,
