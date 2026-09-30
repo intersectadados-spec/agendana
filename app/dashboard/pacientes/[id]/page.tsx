@@ -1,3 +1,4 @@
+import ConsultaPacienteItem from "@/components/ConsultaPacienteItem";
 import ExcluirPacienteBotao from "@/components/ExcluirPacienteBotao";
 import PacienteForm from "@/components/PacienteForm";
 import { atualizarPaciente } from "@/lib/actions";
@@ -97,18 +98,15 @@ export default async function EditarPacientePage({
             <p className="p-4 text-sm text-muted">Nenhuma consulta marcada nesse mês.</p>
           ) : (
             consultasDoMes.map((c) => (
-              <div key={c.id} className="flex items-center justify-between p-3 text-sm">
-                <div>
-                  <p className="font-medium">
-                    {formatDateBR(c.data)} às {c.horario.slice(0, 5)}
-                  </p>
-                  <p className="text-xs text-muted capitalize">{c.status}</p>
-                </div>
-                <div className="flex gap-2 text-xs">
-                  {c.atendido && <span className="text-sage">Atendido</span>}
-                  {c.pago && <span className="text-wine">Pago</span>}
-                </div>
-              </div>
+              <ConsultaPacienteItem
+                key={c.id}
+                id={c.id}
+                dataFormatada={formatDateBR(c.data)}
+                horario={c.horario}
+                atendido={c.atendido}
+                pago={c.pago}
+                status={c.status}
+              />
             ))
           )}
         </div>

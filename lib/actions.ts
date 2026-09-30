@@ -6,16 +6,17 @@ import { randomUUID } from "crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+type ResultadoAcao = { ok: boolean; error?: string };
+
 function revalidarAgendaEPaciente() {
   revalidatePath("/dashboard/agenda");
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/financeiro");
+  revalidatePath("/dashboard/desempenho");
   revalidatePath("/dashboard/pacientes/[id]", "page");
 }
 
 // PACIENTES -------------------------------------------------------------
-
-type ResultadoAcao = { ok: boolean; error?: string };
 
 export async function criarPaciente(formData: FormData): Promise<ResultadoAcao> {
   const supabase = createClient();
@@ -209,6 +210,43 @@ export async function excluirAgendamento(id: string) {
   const { error } = await supabase.from("agendamentos").delete().eq("id", id);
   if (error) throw new Error(error.message);
   revalidarAgendaEPaciente();
+}
+
+// RECEBIMENTOS AVULSOS ------------------------------------------------------
+
+export async function registrarRecebimentoAvulso(formData: FormData): Promise<ResultadoAcao> {
+  const supabase = createClient();
+
+  const paciente_id = formData.get("paciente_id") as string;
+  const valor = Number(formData.get("valor"));
+  const mes_referencia = formData.get("mes_referencia") as string;
+  const data_recebimento = (formData.get("data_recebimento") as string) || undefined;
+  const observacao = (formData.get("observacao") as string) || null;
+
+  if (!paciente_id || !valor || !mes_referencia) {
+    return { ok: false, error: "Preencha paciente, valor e mês de referência." };
+  }
+
+  const { error } = await supabase.from("recebimentos_avulsos").insert({
+    paciente_id,
+    valor,
+    mes_referencia,
+    ...(data_recebimento ? { data_recebimento } : {}),
+    observacao,
+  });
+
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/dashboard/financeiro");
+  return { ok: true };
+}
+
+export async function excluirRecebimentoAvulso(id: string): Promise<ResultadoAcao> {
+  const supabase = createClient();
+  const { error } = await supabase.from("recebimentos_avulsos").delete().eq("id", id);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/dashboard/financeiro");
+  return { ok: true };
 }
 
 // AUTH --------------------------------------------------------------------
